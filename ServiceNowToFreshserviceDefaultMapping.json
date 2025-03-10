@@ -1,0 +1,744 @@
+{
+  "name": "Tickets",
+  "fieldMappings": [
+    {
+      "sourcefield": "short_description",
+      "targetfield": "subject",
+      "override": [],
+      "attribute": "subject",
+      "type": "string",
+      "description": "Subject of the ticket.",
+      "required": true,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "description",
+      "targetfield": "description",
+      "override": [],
+      "attribute": "description",
+      "type": "string",
+      "description": "HTML content of the ticket.",
+      "required": true,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "state",
+      "targetfield": "status",
+      "override": [
+        {
+          "sourcevalue": "1",
+          "targetvalue": 3
+        },
+        {
+          "sourcevalue": "2",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "3",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "6",
+          "targetvalue": 4
+        },
+        {
+          "sourcevalue": "7",
+          "targetvalue": 5
+        },
+        {
+          "sourcevalue": "8",
+          "targetvalue": 5
+        }
+      ],
+      "attribute": "status",
+      "type": "number",
+      "description": "Status of the ticket.",
+      "required": true,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "mappingEnabled": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "priority",
+      "targetfield": "priority",
+      "override": [
+        {
+          "sourcevalue": "1",
+          "targetvalue": 4
+        },
+        {
+          "sourcevalue": "2",
+          "targetvalue": 3
+        },
+        {
+          "sourcevalue": "3",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "4",
+          "targetvalue": 1
+        },
+        {
+          "sourcevalue": "5",
+          "targetvalue": 1
+        }
+      ],
+      "attribute": "priority",
+      "type": "number",
+      "description": "Priority of the ticket.",
+      "required": true,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "mappingEnabled": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "callerEmail",
+      "targetfield": "email",
+      "override": [],
+      "attribute": "email",
+      "type": "string",
+      "description": "Email address of the requester. If no contact exists with this email address in Freshservice, it will be added as a new contact.",
+      "required": true,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "agentName",
+      "targetfield": "responder_id",
+      "override": [],
+      "attribute": "responder_id",
+      "type": "number",
+      "description": "ID of the agent to whom the ticket has been assigned.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "callerName",
+      "targetfield": "name",
+      "override": [],
+      "attribute": "name",
+      "type": "string",
+      "description": "Name of the requester.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "callerPhone",
+      "targetfield": "phone",
+      "override": [],
+      "attribute": "phone",
+      "type": "string",
+      "description": "Phone number of the requester. If no contact exists with this phone number in Freshservice, it will be added as a new contact. If the phone number is set and the email address is not, then the name attribute is mandatory.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "requester_id",
+      "override": [],
+      "attribute": "requester_id",
+      "type": "string",
+      "description": "User ID of the requester. For existing contacts, the requester_id can be passed instead of the requester's email.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": false
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "type",
+      "override": [],
+      "attribute": "type",
+      "type": "string",
+      "description": "Helps categorize the ticket according to the different kinds of issues your support team deals with",
+      "required": false,
+      "default": "Incident",
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "tags",
+      "override": [],
+      "attribute": "tags",
+      "type": "array",
+      "description": "Tags that have been associated with the ticket.",
+      "required": false,
+      "default": "tag",
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "workspace_id",
+      "override": [],
+      "attribute": "workspace_id",
+      "type": "number",
+      "description": "ID of the workspace that the ticket belongs to. If not provided, the ID of the primary workspace will be defaulted. Applicable only to accounts on the Employee Support Mode.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "department_id",
+      "override": [],
+      "attribute": "department_id",
+      "type": "number",
+      "description": "ID of the department to which this ticket belongs.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "groupName",
+      "targetfield": "group_id",
+      "override": [],
+      "attribute": "group_id",
+      "type": "number",
+      "description": "ID of the group to which the ticket has been assigned.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "opened_at",
+      "targetfield": "created_at",
+      "override": [],
+      "attribute": "created_at",
+      "type": "datetime",
+      "description": "Ticket creation timestamp.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "sys_updated_on",
+      "targetfield": "updated_at",
+      "override": [],
+      "attribute": "updated_at",
+      "type": "datetime",
+      "description": "Ticket updated timestamp.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "attachments",
+      "override": [],
+      "attribute": "attachments",
+      "type": "array",
+      "description": "Ticket attachments. The total size of these attachments cannot exceed 40 MB.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "cc_emails",
+      "override": [],
+      "attribute": "cc_emails",
+      "type": "array",
+      "description": "Email addresses added in the 'cc' field of the incoming ticket email.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "due_by",
+      "override": [],
+      "attribute": "due_by",
+      "type": "datetime",
+      "description": "Timestamp that denotes when the ticket is due to be resolved.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "email_config_id",
+      "override": [],
+      "attribute": "email_config_id",
+      "type": "number",
+      "description": "ID of email config which is used for this ticket. (i.e., support@yourcompany.com/sales@yourcompany.com)",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "fr_due_by",
+      "override": [],
+      "attribute": "fr_due_by",
+      "type": "datetime",
+      "description": "Timestamp that denotes when the first response is due.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": false,
+      "skip": true,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "category",
+      "targetfield": "category",
+      "override": [],
+      "attribute": "category",
+      "type": "string",
+      "description": "Ticket Category.",
+      "required": false,
+      "default": "",
+      "mappingEnabled": true,
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "subcategory",
+      "targetfield": "sub_category",
+      "override": [],
+      "attribute": "sub_category",
+      "type": "string",
+      "description": "Ticket sub category.",
+      "required": false,
+      "default": "",
+      "mappingEnabled": true,
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "",
+      "targetfield": "item_category",
+      "override": [],
+      "attribute": "item_category",
+      "type": "string",
+      "description": "Ticket item category.",
+      "required": false,
+      "default": "",
+      "mappingEnabled": true,
+      "isSourceFieldAvailable": false,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "contact_type",
+      "targetfield": "source",
+      "override": [
+        {
+          "sourcevalue": "chat",
+          "targetvalue": 4
+        },
+        {
+          "sourcevalue": "walk-in",
+          "targetvalue": 9
+        },
+        {
+          "sourcevalue": "virtual_agent",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "email",
+          "targetvalue": 1
+        },
+        {
+          "sourcevalue": "phone",
+          "targetvalue": 3
+        },
+        {
+          "sourcevalue": "self-service",
+          "targetvalue": 2
+        }
+      ],
+      "attribute": "source",
+      "type": "number",
+      "description": "The channel through which the ticket was created.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "urgency",
+      "targetfield": "urgency",
+      "override": [
+        {
+          "sourcevalue": "1",
+          "targetvalue": 3
+        },
+        {
+          "sourcevalue": "2",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "3",
+          "targetvalue": 1
+        }
+      ],
+      "attribute": "urgency",
+      "type": "number",
+      "description": "Ticket urgency.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "impact",
+      "targetfield": "impact",
+      "override": [
+        {
+          "sourcevalue": "1",
+          "targetvalue": 3
+        },
+        {
+          "sourcevalue": "2",
+          "targetvalue": 2
+        },
+        {
+          "sourcevalue": "3",
+          "targetvalue": 1
+        }
+      ],
+      "attribute": "impact",
+      "type": "number",
+      "description": "Ticket impact.",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    },
+    {
+      "sourcefield": "close_notes",
+      "targetfield": "resolution_notes",
+      "override": [],
+      "attribute": "resolution_notes",
+      "type": "string",
+      "description": "Content of the ticket resolution note in plain text",
+      "required": false,
+      "default": "",
+      "isSourceFieldAvailable": true,
+      "skip": false,
+      "showFieldOnInitialScreen": true
+    }
+  ],
+  "attributes": [],
+  "condition": "",
+  "operation": "INSERT",
+  "process_type_into_target": "json",
+  "sourceValidateExecutor": {
+    "id": 125767,
+    "executor_type": "THIRDPARTY",
+    "executor_name": "createaTicket",
+    "executor_version": "v2",
+    "executor_display_name": "Create a Ticket",
+    "executor_description": "This API helps you to create a new ticket in your service desk.",
+    "executor_category": "Ticket",
+    "executor_category_group": "Ticket",
+    "service_provider": "freshservice",
+    "executor_scope": null,
+    "partner": "b2b",
+    "executor_method_type": "GET",
+    "apiUrl": "https://{domain}.freshservice.com/api/v2/tickets",
+    "dataroot": "tickets",
+    "pathParams": [
+      {
+        "key": "domain",
+        "value": "apiplatformhelpdesk",
+        "description": ""
+      }
+    ],
+    "queryParams": [],
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "req": false
+      }
+    ],
+    "authModel": {
+      "authType": "basic_authentication",
+      "authAttributes": {
+        "username": "wr7jPu0cGqepFtOnjLH",
+        "password": "x"
+      }
+    },
+    "requestBody": {
+      "value": {
+        "description": "Details about the issue...",
+        "subject": "Support Needed...",
+        "email": "tom@outerspace.com",
+        "priority": 1,
+        "status": 2,
+        "cc_emails": [
+          "ram@freshservice.com",
+          "diana@freshservice.com"
+        ],
+        "workspace_id": 3
+      },
+      "key": "payload",
+      "description": "Document in JSON format",
+      "annotation": "RequestBody"
+    },
+    "prerequisites": null,
+    "executors": null,
+    "functions": null,
+    "responseAttributes": [
+      {
+        "attributeName": null,
+        "displayName": null,
+        "description": null,
+        "type": null,
+        "size": 0,
+        "precision": 0,
+        "autoIncrement": false,
+        "defaultValue": null,
+        "subType": [],
+        "attributeType": "None",
+        "required": false,
+        "dataStoragePolicy": "None",
+        "apiAccessPolicy": "None",
+        "displayPolicy": "None",
+        "array": false,
+        "customType": false,
+        "updateOption": null,
+        "previousAttributeName": null,
+        "compliances": null
+      }
+    ],
+    "response": null,
+    "attributeMappings": null,
+    "source": null,
+    "block_attributes": null,
+    "workflow_credentials": null,
+    "disabled": false,
+    "published": true,
+    "scopeOfAccess": null,
+    "registeredAsIs": true,
+    "creationTime": 1710738640166,
+    "lastModifiedTime": 1710909701147,
+    "executionLib": null,
+    "isDocumentationPublished": true,
+    "mockResponses": [
+      {
+        "statusCode": 200,
+        "statusText": null,
+        "methodType": "POST",
+        "message": null,
+        "description": null,
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "responseAttributes": [],
+        "sampleData": {
+          "ticket": {
+            "cc_emails": [
+              "ram@freshservice.com",
+              "diana@freshservice.com"
+            ],
+            "fwd_emails": [],
+            "reply_cc_emails": [
+              "ram@freshservice.com",
+              "diana@freshservice.com"
+            ],
+            "fr_escalated": false,
+            "spam": false,
+            "email_config_id": null,
+            "group_id": null,
+            "priority": 1,
+            "requester_id": 1000000675,
+            "requested_for_id": 1000000670,
+            "responder_id": null,
+            "source": 2,
+            "status": 2,
+            "subject": "Support Needed...",
+            "to_emails": null,
+            "department_id": null,
+            "id": 264,
+            "type": "Incident",
+            "due_by": "2017-09-11T10:26:17Z",
+            "fr_due_by": "2017-09-09T10:26:17Z",
+            "is_escalated": false,
+            "description": "<div>Details about the issue...</div>",
+            "description_text": "Details about the issue...",
+            "category": null,
+            "sub_category": null,
+            "item_category": null,
+            "custom_fields": {
+              "auto_checkbox": null
+            },
+            "created_at": "2017-09-08T10:26:17Z",
+            "updated_at": "2017-09-08T10:26:17Z",
+            "tags": [],
+            "attachments": [],
+            "workspace_id": 3,
+            "resolution_notes": "Resolution note for the ticket...",
+            "resolution_notes_html": "<div>Resolution note for the ticket...</div>"
+          }
+        }
+      }
+    ],
+    "isMockResponseEnabled": false,
+    "block_id": null,
+    "gatewaySettings": null,
+    "apiQueryModel": null,
+    "properties": {
+      "showBodyParamDescription": false,
+      "bodyParamDescription": []
+    },
+    "vid": null,
+    "nid": null,
+    "account": "b2b"
+  },
+  "sourceValidationKeys": [],
+  "targetConnector": {},
+  "targetExecutor": {
+    "partner": "dev-saasgenie",
+    "account_id": "dev-saasgenie",
+    "executor_name": "validateAndCreate",
+    "executor_type": "BUSINESSLOGIC",
+    "executor_version": "v2",
+    "executor_method_type": "POST",
+    "apiUrl": "https://dev-saasgenie.gateway.apiplatform.io/v2/create-freshservice-ticket-base64-attachments",
+    "dataroot": null,
+    "queryParams": [
+      {
+        "key": "authorization",
+        "value": "",
+        "description": "",
+        "req": false
+      },
+      {
+        "key": "domainUrl",
+        "value": "",
+        "description": "",
+        "req": false
+      }
+    ],
+    "pathParams": [],
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "req": false
+      },
+      {
+        "key": "apikey",
+        "value": "4VMvMYQGuZvedBaxUTISvh4vhKyyAq3Z",
+        "description": ""
+      },
+      {
+        "description": "",
+        "value": "3fde0cf904f891223fd5131bb989b49a",
+        "key": "pkey"
+      }
+    ],
+    "requestBody": {
+      "value": {
+        "subject": "sample ticket",
+        "group_id": 29000394366,
+        "email": "vikram.s@apiplatform.io",
+        "priority": 1,
+        "status": 2,
+        "description": "sample ticket",
+        "tags": [
+          "test"
+        ]
+      },
+      "key": "payload",
+      "description": "Document in JSON format",
+      "annotation": "RequestBody"
+    },
+    "executors": [],
+    "prerequisites": null,
+    "authModel": {
+      "authType": "",
+      "authAttributes": {}
+    }
+  },
+  "targetFields": [],
+  "targetProvider": {
+    "producer": "freshservice",
+    "title": "Freshservice",
+    "description": "Freshservice is an intelligent, right-sized service management solution for modern businesses of all sizes.",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSvxRrWhXrKwkBN_V4kWhL7RYl8ytNPH2QCqllw9YbBt1nELFsZ4IRp_zuxzuNYxByGWZU&usqp=CAU",
+    "url": "https://developers.freshservice.com/",
+    "authorization": [
+      {
+        "authtype": "API Key",
+        "authattributes": [
+          {
+            "key": "key",
+            "displayname": "Key"
+          },
+          {
+            "key": "value",
+            "displayname": "Value"
+          }
+        ]
+      }
+    ],
+    "partner": "services",
+    "account": "services",
+    "isPromoted": false,
+    "id": 736
+  },
+  "target_type": "API",
+  "mappingEnabled": false,
+  "source": "freshservice",
+  "additionalDetails": {
+    "notesURL": "https://dev-saasgenie.gateway.apiplatform.io/v1/post-freshservice-notes"
+  },
+  "id": 16
+}
