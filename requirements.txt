@@ -2,3 +2,4 @@ tabulate
 scikit-learn
 scipy
 fuzzywuzzy
+openai

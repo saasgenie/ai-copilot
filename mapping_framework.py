@@ -3,6 +3,8 @@ import json
 from tabulate import tabulate
 from ml_model import FieldMappingModel
 from fuzzywuzzy import process  # Import fuzzy matching library
+import openai  # Import OpenAI library
+import os
 
 # Load the mapping configuration
 with open('/Users/samohan/Code/mapping/ServiceNowToFreshservice.json') as f:
@@ -16,6 +18,14 @@ with open('/Users/samohan/Code/mapping/ServiceNowToFreshserviceDefaultMapping.js
 model = FieldMappingModel()
 model.load_data('/Users/samohan/Code/mapping/field_mappings.json')
 model.train()
+
+# Read OpenAI API key from a local file
+key_file_path = '/Users/samohan/Code/ai-copilot/openai_key.txt'
+if os.path.exists(key_file_path):
+    with open(key_file_path, 'r') as key_file:
+        openai.api_key = key_file.read().strip()
+else:
+    raise FileNotFoundError(f"OpenAI API key file not found at {key_file_path}")
 
 def load_csv(file_path):
     with open(file_path, mode='r') as file:
@@ -56,12 +66,19 @@ def suggest_possible_conversion(field):
         # Use the trained model for prediction
         return model.predict(field)
     except:
-        # Fallback to fuzzy matching if the model fails
-        all_labels = model.labels  # Get all known labels from the model
-        best_match, score = process.extractOne(field, all_labels)
-        if score > 70:  # Set a threshold for fuzzy matching confidence
-            return best_match
-        return "No suggestion available"
+        # Fallback to GPT-4 for generating suggestions
+        try:
+            response = openai.Completion.create(
+                engine="gpt-4",
+                prompt=f"Suggest a possible mapping for the field '{field}' in the context of SaaS applications.",
+                max_tokens=50,
+                temperature=0.7
+            )
+            suggestion = response.choices[0].text.strip()
+            return suggestion if suggestion else "No suggestion available"
+        except Exception as e:
+            print(f"Error using GPT-4: {e}")
+            return "No suggestion available"
 
 def query_user_for_suggestions(unmapped_fields):
     for field in unmapped_fields:
