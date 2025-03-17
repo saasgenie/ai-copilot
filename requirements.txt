@@ -2,4 +2,4 @@ tabulate
 scikit-learn
 scipy
 fuzzywuzzy
-openai
+openai>=1.0.0

@@ -5,6 +5,7 @@ from ml_model import FieldMappingModel
 from fuzzywuzzy import process  # Import fuzzy matching library
 import openai  # Import OpenAI library
 import os
+import asyncio  # Import asyncio for handling async functions
 
 # Load the mapping configuration
 with open('/Users/samohan/Code/mapping/ServiceNowToFreshservice.json') as f:
@@ -62,27 +63,27 @@ def map_fields(servicenow_data, mapping_config, default_mapping):
     return mapped_data, unmapped_fields, mapped_fields, field_summary
 
 def suggest_possible_conversion(field):
+    # Use GPT-4 with the latest OpenAI API
     try:
-        # Use the trained model for prediction
-        return model.predict(field)
-    except:
-        # Fallback to GPT-4 for generating suggestions
-        try:
-            response = openai.Completion.create(
-                engine="gpt-4",
-                prompt=f"Suggest a possible mapping for the field '{field}' in the context of SaaS applications.",
-                max_tokens=50,
-                temperature=0.7
-            )
-            suggestion = response.choices[0].text.strip()
-            return suggestion if suggestion else "No suggestion available"
-        except Exception as e:
-            print(f"Error using GPT-4: {e}")
-            return "No suggestion available"
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert in SaaS application field mappings."},
+                {"role": "user", "content": f"Suggest a possible mapping for the field '{field}' in the context of SaaS applications."}
+            ],
+            max_tokens=50,
+            temperature=0.7
+        )
+        suggestion = response['choices'][0]['message']['content'].strip()
+        return suggestion if suggestion else "No suggestion available"
+    except Exception as e:
+        print(f"Error using GPT-4: {e}")
+        return "No suggestion available"
 
 def query_user_for_suggestions(unmapped_fields):
     for field in unmapped_fields:
-        suggestion = suggest_possible_conversion(field)
+        # Use asyncio.run to call the async function
+        suggestion = asyncio.run(suggest_possible_conversion(field))
         print(f"Suggested mapping for '{field}': {suggestion}")
         user_input = input(f"Please provide a target field for unmapped field '{field}' (or press Enter to accept suggestion): ")
         if user_input:
@@ -94,7 +95,7 @@ def query_user_for_suggestions(unmapped_fields):
     model.save_data('/Users/samohan/Code/mapping/field_mappings.json')
 
 def print_unmapped_fields(unmapped_fields):
-    table = [[field, suggest_possible_conversion(field)] for field in unmapped_fields]
+    table = [[field, asyncio.run(suggest_possible_conversion(field))] for field in unmapped_fields]
     print(tabulate(table, headers=["Unmapped Field", "Possible Conversion"], tablefmt="grid"))
 
 def print_field_summary(field_summary):
