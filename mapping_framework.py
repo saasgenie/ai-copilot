@@ -2,6 +2,7 @@ import csv
 import json
 from tabulate import tabulate
 from ml_model import FieldMappingModel
+from fuzzywuzzy import process  # Import fuzzy matching library
 
 # Load the mapping configuration
 with open('/Users/samohan/Code/mapping/ServiceNowToFreshservice.json') as f:
@@ -52,8 +53,14 @@ def map_fields(servicenow_data, mapping_config, default_mapping):
 
 def suggest_possible_conversion(field):
     try:
+        # Use the trained model for prediction
         return model.predict(field)
     except:
+        # Fallback to fuzzy matching if the model fails
+        all_labels = model.labels  # Get all known labels from the model
+        best_match, score = process.extractOne(field, all_labels)
+        if score > 70:  # Set a threshold for fuzzy matching confidence
+            return best_match
         return "No suggestion available"
 
 def query_user_for_suggestions(unmapped_fields):
