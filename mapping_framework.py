@@ -3,7 +3,7 @@ import json
 from tabulate import tabulate
 from ml_model import FieldMappingModel
 from fuzzywuzzy import process  # Import fuzzy matching library
-import openai  # Import OpenAI library
+from openai import OpenAI  # Import OpenAI library
 import os
 import asyncio  # Import asyncio for handling async functions
 
@@ -20,13 +20,75 @@ model = FieldMappingModel()
 model.load_data('/Users/samohan/Code/mapping/field_mappings.json')
 model.train()
 
-# Read OpenAI API key from a local file
+# Read OpenAI API key from a local file and initialize the client
 key_file_path = '/Users/samohan/Code/ai-copilot/openai_key.txt'
 if os.path.exists(key_file_path):
     with open(key_file_path, 'r') as key_file:
-        openai.api_key = key_file.read().strip()
+        client = OpenAI(api_key=key_file.read().strip())
 else:
     raise FileNotFoundError(f"OpenAI API key file not found at {key_file_path}")
+
+# Common field mapping rules
+FIELD_MAPPING_RULES = {
+    # Name-related fields
+    'name': 'name',
+    'full_name': 'full_name',
+    'first_name': 'first_name',
+    'last_name': 'last_name',
+    'username': 'username',
+    'user_name': 'username',
+    'display_name': 'display_name',
+    
+    # Contact information
+    'email': 'email',
+    'phone': 'phone',
+    'mobile': 'mobile_phone',
+    'address': 'address',
+    'location': 'location',
+    
+    # Date fields
+    'date': 'date',
+    'created': 'created_at',
+    'updated': 'updated_at',
+    'modified': 'modified_at',
+    'last_modified': 'last_modified_at',
+    
+    # Status fields
+    'status': 'status',
+    'state': 'state',
+    'active': 'is_active',
+    'enabled': 'is_enabled',
+    
+    # Description fields
+    'description': 'description',
+    'details': 'details',
+    'notes': 'notes',
+    'comment': 'comments',
+    
+    # ID fields
+    'id': 'id',
+    'identifier': 'identifier',
+    'reference': 'reference_number',
+    
+    # Priority fields
+    'priority': 'priority',
+    'severity': 'severity',
+    'impact': 'impact',
+    
+    # Category fields
+    'category': 'category',
+    'type': 'type',
+    'group': 'group',
+    
+    # Assignment fields
+    'assignee': 'assigned_to',
+    'owner': 'owned_by',
+    'manager': 'managed_by',
+    
+    # Custom fields
+    'custom': 'custom_field',
+    'cf_': 'custom_field_'
+}
 
 def load_csv(file_path):
     with open(file_path, mode='r') as file:
@@ -63,27 +125,26 @@ def map_fields(servicenow_data, mapping_config, default_mapping):
     return mapped_data, unmapped_fields, mapped_fields, field_summary
 
 def suggest_possible_conversion(field):
-    # Use GPT-4 with the latest OpenAI API
+    # Use GPT-3.5-turbo with the latest OpenAI API
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert in SaaS application field mappings."},
-                {"role": "user", "content": f"Suggest a possible mapping for the field '{field}' in the context of SaaS applications."}
+                {"role": "system", "content": "You are an expert in SaaS application field mappings. Your task is to suggest the most appropriate field mapping based on common SaaS field naming conventions. Consider the context of ServiceNow to Freshservice migration."},
+                {"role": "user", "content": f"Given a source field named '{field}', suggest the most appropriate target field name that would be used in Freshservice. Consider common naming conventions and field purposes. Return only the suggested field name without any explanation."}
             ],
-            max_tokens=50,
-            temperature=0.7
+            max_tokens=30,
+            temperature=0.3  # Lower temperature for more consistent results
         )
-        suggestion = response['choices'][0]['message']['content'].strip()
+        suggestion = response.choices[0].message.content.strip()
         return suggestion if suggestion else "No suggestion available"
     except Exception as e:
-        print(f"Error using GPT-4: {e}")
+        print(f"Error using GPT-3.5: {e}")
         return "No suggestion available"
 
 def query_user_for_suggestions(unmapped_fields):
     for field in unmapped_fields:
-        # Use asyncio.run to call the async function
-        suggestion = asyncio.run(suggest_possible_conversion(field))
+        suggestion = suggest_possible_conversion(field)
         print(f"Suggested mapping for '{field}': {suggestion}")
         user_input = input(f"Please provide a target field for unmapped field '{field}' (or press Enter to accept suggestion): ")
         if user_input:
@@ -95,7 +156,7 @@ def query_user_for_suggestions(unmapped_fields):
     model.save_data('/Users/samohan/Code/mapping/field_mappings.json')
 
 def print_unmapped_fields(unmapped_fields):
-    table = [[field, asyncio.run(suggest_possible_conversion(field))] for field in unmapped_fields]
+    table = [[field, suggest_possible_conversion(field)] for field in unmapped_fields]
     print(tabulate(table, headers=["Unmapped Field", "Possible Conversion"], tablefmt="grid"))
 
 def print_field_summary(field_summary):
