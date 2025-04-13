@@ -100,29 +100,33 @@ def map_fields(servicenow_data, mapping_config, default_mapping):
     unmapped_fields = set()
     mapped_fields = set()
     field_summary = {}
+    config_mappings = {}
+    default_mappings = {}
 
-    # Create a dictionary for quick lookup of default mappings
-    default_mapping_dict = {item['sourcefield']: item['targetfield'] for item in default_mapping['fieldMappings']}
+    # Create dictionaries for quick lookup of mappings
+    for mapping in default_mapping['fieldMappings']:
+        default_mappings[mapping['sourcefield']] = mapping['targetfield']
+    
+    for target in mapping_config['additional_details']['targets']:
+        for mapping in target['fieldMappings']:
+            config_mappings[mapping['sourcefield']] = mapping['targetfield']
 
     for record in servicenow_data:
         mapped_record = {}
-        for target in mapping_config['additional_details']['targets']:
-            for field_mapping in target['fieldMappings']:
-                source_field = field_mapping.get('sourcefield')
-                target_field = field_mapping.get('targetfield')
-                if source_field in record:
-                    mapped_record[target_field] = record[source_field]
-                    mapped_fields.add(source_field)
-                    field_summary[source_field] = target_field
-                elif source_field in default_mapping_dict:
-                    mapped_record[target_field] = default_mapping_dict[source_field]
-                    mapped_fields.add(source_field)
-                    field_summary[source_field] = default_mapping_dict[source_field]
-                else:
-                    unmapped_fields.add(source_field)
+        for field in record.keys():
+            if field in config_mappings:
+                mapped_record[config_mappings[field]] = record[field]
+                mapped_fields.add(field)
+                field_summary[field] = config_mappings[field]
+            elif field in default_mappings:
+                mapped_record[default_mappings[field]] = record[field]
+                mapped_fields.add(field)
+                field_summary[field] = default_mappings[field]
+            else:
+                unmapped_fields.add(field)
         mapped_data.append(mapped_record)
     
-    return mapped_data, unmapped_fields, mapped_fields, field_summary
+    return mapped_data, unmapped_fields, mapped_fields, field_summary, config_mappings, default_mappings
 
 def suggest_possible_conversion(field):
     # Use GPT-3.5-turbo with the latest OpenAI API
@@ -163,21 +167,94 @@ def print_field_summary(field_summary):
     table = [[source, target] for source, target in field_summary.items()]
     print(tabulate(table, headers=["Source Field", "Target Field"], tablefmt="grid"))
 
+def print_complete_mapping_table(servicenow_data, mapping_config, default_mapping, user_modifications=None):
+    if user_modifications is None:
+        user_modifications = {}
+    
+    # Get all unique fields from the data
+    all_fields = set()
+    for record in servicenow_data:
+        all_fields.update(record.keys())
+    
+    # Get all fields from config and default mappings
+    config_fields = set()
+    for target in mapping_config['additional_details']['targets']:
+        for mapping in target['fieldMappings']:
+            config_fields.add(mapping['sourcefield'])
+    
+    default_fields = set()
+    for mapping in default_mapping['fieldMappings']:
+        default_fields.add(mapping['sourcefield'])
+    
+    # Combine all fields
+    all_fields.update(config_fields)
+    all_fields.update(default_fields)
+    
+    # Create mapping table
+    table = []
+    for field in sorted(all_fields):
+        target_field = None
+        mapping_source = "Unmapped"
+        
+        # First check if field was AI suggested
+        if field in user_modifications:
+            target_field = user_modifications[field]
+            mapping_source = "AI Suggested"
+        else:
+            # Check config mapping
+            for target in mapping_config['additional_details']['targets']:
+                for mapping in target['fieldMappings']:
+                    if mapping['sourcefield'] == field:
+                        target_field = mapping['targetfield']
+                        mapping_source = "Config"
+                        break
+            
+            # If not in config mapping, check default mapping
+            if target_field is None:
+                for mapping in default_mapping['fieldMappings']:
+                    if mapping['sourcefield'] == field:
+                        target_field = mapping['targetfield']
+                        mapping_source = "Default"
+                        break
+            
+            # If still unmapped, get AI suggestion
+            if target_field is None:
+                target_field = suggest_possible_conversion(field)
+                mapping_source = "AI Suggested"
+        
+        table.append([field, target_field, mapping_source])
+    
+    # Print the table with a summary
+    print("\nComplete Field Mapping Table:")
+    print(tabulate(table, headers=["Source Field", "Target Field", "Mapping Source"], tablefmt="grid"))
+    
+    # Print mapping statistics
+    mapping_sources = {}
+    for _, _, source in table:
+        mapping_sources[source] = mapping_sources.get(source, 0) + 1
+    
+    print("\nMapping Statistics:")
+    stats_table = [[source, count] for source, count in mapping_sources.items()]
+    print(tabulate(stats_table, headers=["Mapping Source", "Count"], tablefmt="grid"))
+
 def main():
     servicenow_data = load_csv('/Users/samohan/Code/mapping/75.csv')
-    _, unmapped_fields, _, field_summary = map_fields(servicenow_data, mapping_config, default_mapping)
+    _, unmapped_fields, _, field_summary, config_mappings, default_mappings = map_fields(servicenow_data, mapping_config, default_mapping)
     
-    # Print unmapped fields
-    print_unmapped_fields(unmapped_fields)
+    # Store AI suggestions
+    ai_suggestions = {}
     
-    # Query user for suggestions on unmapped fields
-    query_user_for_suggestions(unmapped_fields)
+    # Get AI suggestions for unmapped fields
+    for field in unmapped_fields:
+        suggestion = suggest_possible_conversion(field)
+        model.update(field, suggestion)
+        ai_suggestions[field] = suggestion
+
+    # Save updated model data
+    model.save_data('/Users/samohan/Code/mapping/field_mappings.json')
     
-    # Re-map fields with updated user suggestions
-    mapped_data, unmapped_fields, mapped_fields, field_summary = map_fields(servicenow_data, mapping_config, default_mapping)
-    
-    # Print field summary
-    print_field_summary(field_summary)
+    # Print complete mapping table
+    print_complete_mapping_table(servicenow_data, mapping_config, default_mapping, ai_suggestions)
 
 if __name__ == "__main__":
     main()
